@@ -1,0 +1,17 @@
+version: 2.1
+
+orbs:
+  orb-tools: circleci/orb-tools@8.27.3
+
+workflows:
+  lint_pack-validate_publish-dev:
+    jobs:
+      - orb-tools/lint
+
+      - orb-tools/pack:
+          requires: [orb-tools/lint]
+
+      - orb-tools/publish-dev:
+          context: orb-publishing
+          orb-name: uniqueck/telegram-orb
+          requires: [orb-tools/pack]

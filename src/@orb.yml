@@ -1,0 +1,9 @@
+version: 2.1
+
+description: >
+  Easily integrates custom telegram notifications into your CircleCI projects.
+  Create custom alert messages for any job or receive status updates.
+  View this orb's source: https://github.com/uniqueck/circleci-telegram-orb
+
+## Requirements ##
+## - cURL
