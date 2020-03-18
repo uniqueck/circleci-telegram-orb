@@ -21,7 +21,7 @@ steps:
   - run:
       name: Telegram - Setting Failure Condition
       command: |
-        echo 'export TELEGRAM_BUILD_STATUS="fail"' >> $BASH_ENV
+        echo 'export TELEGRAM_BUILD_STATUS="failure"' >> $BASH_ENV
       when: on_fail
 
   - run:

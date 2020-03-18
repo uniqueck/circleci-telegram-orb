@@ -2,6 +2,21 @@ version: 2.1
 
 orbs:
   orb-tools: circleci/orb-tools@8.27.3
+  telegram: uniqueck/telegram-orb@dev:alpha
+
+jobs:
+  statustest:
+    executor: orb-tools/ubuntu
+    steps:
+      - run: exit 0
+      - telegram/status
+
+# yaml anchor filters
+integration-dev_filters: &integration-dev_filters
+  branches:
+    ignore: /.*/
+  tags:
+    only: /integration-.*/
 
 workflows:
   lint_pack-validate_publish-dev:
@@ -15,3 +30,12 @@ workflows:
           context: orb-publishing
           orb-name: uniqueck/telegram-orb
           requires: [orb-tools/pack]
+
+      - orb-tools/trigger-integration-workflow:
+          context: orb-publishing
+          name: trigger-integration-dev
+          cleanup-tags: true
+          requires: [orb-tools/publish-dev]
+          filters:
+            branches:
+              ignore: master

@@ -1,0 +1,17 @@
+description: "Send a status alert at the end of a job based on success or failure. This must be the last step in a job."
+
+usage:
+  version: 2.1
+
+  orbs:
+    telegram: uniqueck/telegram-orb@x.y.z
+
+  jobs:
+    build:
+      docker:
+        - image: <docker image>
+
+      steps:
+        - run: exit 0
+
+        - telegram/status
