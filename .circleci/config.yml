@@ -34,6 +34,7 @@ workflows:
       - orb-tools/trigger-integration-workflow:
           context: orb-publishing
           name: trigger-integration-dev
+          ssh-fingerprints: 1b:ee:4d:0c:3b:b9:5c:96:b0:e6:0b:86:ec:f5:ae:ea
           cleanup-tags: true
           requires: [orb-tools/publish-dev]
           filters:
