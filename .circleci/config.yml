@@ -18,6 +18,13 @@ integration-dev_filters: &integration-dev_filters
   tags:
     only: /integration-.*/
 
+integration-master_filters: &integration-master_filters
+  branches:
+    ignore: /.*/
+  tags:
+    only: /master-.*/
+
+
 workflows:
   lint_pack-validate_publish-dev:
     jobs:
@@ -40,3 +47,22 @@ workflows:
           filters:
             branches:
               ignore: master
+
+      - orb-tools/trigger-integration-workflow:
+          name: trigger-integration-master
+          ssh-fingerprints: 1b:ee:4d:0c:3b:b9:5c:96:b0:e6:0b:86:ec:f5:ae:ea
+          cleanup-tags: true
+          tag: master
+          requires: [orb-tools/publish-dev]
+          filters:
+            branches:
+              only: master
+
+
+  integration_tests-prod_deploy:
+    jobs:
+      # triggered by non-master branch commits
+      - statustest:
+          name: notifytest-dev
+          context: orb-publishing
+          filters: *integration-dev_filters
