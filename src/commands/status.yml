@@ -54,6 +54,12 @@ steps:
         rm curl_exists
 
   - run:
+      name: Provide error if jq is not installed.
+      command: |
+        which jq > jq_exists; echo $? | grep -q '1' && echo jq not installed && rm jq_exists && exit 1
+        rm jq_exists
+
+  - run:
       name: Telegram - Setting Failure Condition
       command: |
         echo 'export TELEGRAM_BUILD_STATUS="failure"' >> $BASH_ENV
@@ -97,9 +103,11 @@ steps:
       when: always
       command: |
         send_msg () {
-            curl -s -X POST https://api.telegram.org/bot<< parameters.token >>/sendMessage \
+            local result
+            result$(curl -s -X POST https://api.telegram.org/bot<< parameters.token >>/sendMessage \
                 -d chat_id=<< parameters.chat_id >> \
-                -d text="$1" -d parse_mode=Markdown
+                -d text="$1" -d parse_mode=Markdown | jq -r '.ok')
+            echo $result
         }
 
         # check if we should send a message for current branch
