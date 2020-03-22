@@ -31,12 +31,12 @@ parameters:
 
   success_message:
     type: string
-    default: ":tada: A $CIRCLE_JOB job has succeeded!"
+    default: "[](https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/apple/237/party-popper_1f389.png) A $CIRCLE_JOB job has succeeded!"
     description: Enter custom message.
 
   failure_message:
     type: string
-    default: ":red_circle: A $CIRCLE_JOB job has failed!"
+    default: "[](https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/apple/237/large-red-circle_1f534.png) A $CIRCLE_JOB job has failed!"
     description: Enter custom message.
 
   only_for_branches:
