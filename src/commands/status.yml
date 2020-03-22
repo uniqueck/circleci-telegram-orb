@@ -11,6 +11,42 @@ parameters:
       Enter either your token value here or use the CircleCI UI to add your
       token under the 'TELEGRAM_TOKEN' environment variable
 
+  chat_id:
+    type: string
+    default: ${TELEGRAM_CHAT_ID}
+    description: >
+      Enter either your id of target chat value here or use the CircleCI UI to add your
+      chat id under the 'TELEGRAM_CHAT_ID' environment variable
+
+  success_only:
+    type: boolean
+    default: false
+    description: >
+      If `true`, notifications of failed jobs will not be sent.
+
+  fail_only:
+    type: boolean
+    default: false
+    description: >
+      If `true`, notifications of successful jobs will not be sent.
+
+  success_message:
+    type: string
+    default: ":tada: A $CIRCLE_JOB job has succeeded!"
+    description: Enter custom message.
+
+  failure_message:
+    type: string
+    default: ":red_circle: A $CIRCLE_JOB job has failed!"
+    description: Enter custom message.
+
+  only_for_branches:
+    type: string
+    default: ""
+    description: >
+      If set, a comma-separated list of branches for which to send
+      notifications. No spaces.
+
 steps:
   - run:
       name: Provide error if curl is not installed.
@@ -39,8 +75,69 @@ steps:
         fi
 
   - run:
+      name: Provide error if token not provided
+      command: |
+        if [ -z "<< parameters.token >>" ]; then
+          echo "No TELEGRAM_TOKEN provided".
+          echo "Please input your TELEGRAM_TOKEN value either in the settings for this project, or as a parameter for this orb."
+          exit 1
+        fi
+
+  - run:
+      name: Provide error if chat id not provided
+      command: |
+        if [ -z "<< parameters.chat_id >>" ]; then
+          echo "No TELEGRAM_CHAT_ID provided".
+          echo "Please input your TELEGRAM_CHAT_ID value either in the settings for this project, or as a parameter for this orb."
+          exit 1
+        fi
+
+  - run:
       name: Telegram - Sending Status Alert
       shell: /bin/bash
       when: always
       command: |
-        echo hallo from telegram orb
+        send_msg () {
+            curl -s -X POST https://api.telegram.org/bot<< parameters.token >>/sendMessage \
+                -d chat_id=<< parameters.chat_id >> \
+                -d text="$1" -d parse_mode=Markdown
+        }
+
+        # check if we should send a message for current branch
+        current_branch_in_filter=false
+
+        IFS="," read -ra BRANCH_FILTERS \<<< "<< parameters.only_for_branches >>"
+
+        for i in "${BRANCH_FILTERS[@]}"; do
+          if [ "${i}" == "${CIRCLE_BRANCH}" ]; then
+            current_branch_in_filter=true
+          fi
+        done
+
+        if [ "x" == "x<< parameters.only_for_branches>>" ] || [ "$current_branch_in_filter" = true ]; then
+          #If successful
+          if [ "$TELEGRAM_BUILD_STATUS" == "success" ]; then
+            # Skip if fail_only is set
+            if [ << parameters.fail_only >> = true ]; then
+              echo "The job completed successfully"
+              echo '"fail_only" is set to "true". No Telegram notification sent.'
+            else
+              send_msg "
+              << parameters.success_message >>
+              "
+              echo "Job completed successfully. Alert sent."
+            fi
+          else
+            #If failed
+            #Skip if success_only
+            if [ << parameters.success_only >> = true ]; then
+              echo "The job failed"
+              echo '"success_only" is set to "true". No Telegram notification sent.'
+            else
+              send_msg "<< parameters.failure_message >>"
+              echo "Job failed. Alert send"
+            fi
+          fi
+        else
+          echo "Current branch is not included in only_for_branches filter, so no status alert will be sent."
+        fi

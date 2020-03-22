@@ -24,6 +24,10 @@ integration-master_filters: &integration-master_filters
   tags:
     only: /master-.*/
 
+prod-deploy_requires: &prod-deploy_requires
+  [
+    statustest-master,
+  ]
 
 workflows:
   lint_pack-validate_publish-dev:
@@ -63,6 +67,54 @@ workflows:
     jobs:
       # triggered by non-master branch commits
       - statustest:
-          name: notifytest-dev
+          name: statustest-dev
           context: orb-publishing
           filters: *integration-dev_filters
+
+      # triggered by master branch commits
+      - statustest:
+          name: statustest-master
+          context: orb-publishing
+          filters: *integration-master_filters
+
+      # patch, minor, or major publishing
+      - orb-tools/dev-promote-prod:
+          name: dev-promote-patch
+          context: orb-publishing
+          orb-name: circleci/slack
+          cleanup-tags: true
+          ssh-fingerprints: 79:ae:f5:10:17:8a:d2:9a:ed:63:5c:b0:92:66:23:49
+          requires: *prod-deploy_requires
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /master-patch.*/
+
+      - orb-tools/dev-promote-prod:
+          name: dev-promote-minor
+          release: minor
+          context: orb-publishing
+          orb-name: circleci/slack
+          cleanup-tags: true
+          ssh-fingerprints: 79:ae:f5:10:17:8a:d2:9a:ed:63:5c:b0:92:66:23:49
+          requires: *prod-deploy_requires
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /master-minor.*/
+
+      - orb-tools/dev-promote-prod:
+          name: dev-promote-major
+          release: major
+          context: orb-publishing
+          orb-name: circleci/slack
+          cleanup-tags: true
+          ssh-fingerprints: 79:ae:f5:10:17:8a:d2:9a:ed:63:5c:b0:92:66:23:49
+          requires: *prod-deploy_requires
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /master-major.*/
