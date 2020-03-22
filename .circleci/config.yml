@@ -18,6 +18,17 @@ integration-dev_filters: &integration-dev_filters
   tags:
     only: /integration-.*/
 
+integration-master_filters: &integration-master_filters
+  branches:
+    ignore: /.*/
+  tags:
+    only: /master-.*/
+
+prod-deploy_requires: &prod-deploy_requires
+  [
+    statustest-master
+  ]
+
 workflows:
   lint_pack-validate_publish-dev:
     jobs:
@@ -34,8 +45,76 @@ workflows:
       - orb-tools/trigger-integration-workflow:
           context: orb-publishing
           name: trigger-integration-dev
+          ssh-fingerprints: 1b:ee:4d:0c:3b:b9:5c:96:b0:e6:0b:86:ec:f5:ae:ea
           cleanup-tags: true
           requires: [orb-tools/publish-dev]
           filters:
             branches:
               ignore: master
+
+      - orb-tools/trigger-integration-workflow:
+          name: trigger-integration-master
+          ssh-fingerprints: 1b:ee:4d:0c:3b:b9:5c:96:b0:e6:0b:86:ec:f5:ae:ea
+          cleanup-tags: true
+          tag: master
+          requires: [orb-tools/publish-dev]
+          filters:
+            branches:
+              only: master
+
+
+  integration_tests-prod_deploy:
+    jobs:
+      # triggered by non-master branch commits
+      - statustest:
+          name: statustest-dev
+          context: orb-publishing
+          filters: *integration-dev_filters
+
+      # triggered by master branch commits
+      - statustest:
+          name: statustest-master
+          context: orb-publishing
+          filters: *integration-master_filters
+
+      # patch, minor, or major publishing
+      - orb-tools/dev-promote-prod:
+          name: dev-promote-patch
+          context: orb-publishing
+          orb-name: uniqueck/telegram-orb
+          cleanup-tags: true
+          ssh-fingerprints: 79:ae:f5:10:17:8a:d2:9a:ed:63:5c:b0:92:66:23:49
+          requires: *prod-deploy_requires
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /master-patch.*/
+
+      - orb-tools/dev-promote-prod:
+          name: dev-promote-minor
+          release: minor
+          context: orb-publishing
+          orb-name: uniqueck/telegram-orb
+          cleanup-tags: true
+          ssh-fingerprints: 79:ae:f5:10:17:8a:d2:9a:ed:63:5c:b0:92:66:23:49
+          requires: *prod-deploy_requires
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /master-minor.*/
+
+      - orb-tools/dev-promote-prod:
+          name: dev-promote-major
+          release: major
+          context: orb-publishing
+          orb-name: uniqueck/telegram-orb
+          cleanup-tags: true
+          ssh-fingerprints: 79:ae:f5:10:17:8a:d2:9a:ed:63:5c:b0:92:66:23:49
+          requires: *prod-deploy_requires
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /master-major.*/
