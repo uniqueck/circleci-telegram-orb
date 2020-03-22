@@ -83,7 +83,7 @@ workflows:
           context: orb-publishing
           orb-name: uniqueck/telegram-orb
           cleanup-tags: true
-          ssh-fingerprints: 79:ae:f5:10:17:8a:d2:9a:ed:63:5c:b0:92:66:23:49
+          ssh-fingerprints: 1b:ee:4d:0c:3b:b9:5c:96:b0:e6:0b:86:ec:f5:ae:ea
           requires: *prod-deploy_requires
           filters:
             branches:
@@ -97,7 +97,7 @@ workflows:
           context: orb-publishing
           orb-name: uniqueck/telegram-orb
           cleanup-tags: true
-          ssh-fingerprints: 79:ae:f5:10:17:8a:d2:9a:ed:63:5c:b0:92:66:23:49
+          ssh-fingerprints: 1b:ee:4d:0c:3b:b9:5c:96:b0:e6:0b:86:ec:f5:ae:ea
           requires: *prod-deploy_requires
           filters:
             branches:
@@ -111,7 +111,7 @@ workflows:
           context: orb-publishing
           orb-name: uniqueck/telegram-orb
           cleanup-tags: true
-          ssh-fingerprints: 79:ae:f5:10:17:8a:d2:9a:ed:63:5c:b0:92:66:23:49
+          ssh-fingerprints: 1b:ee:4d:0c:3b:b9:5c:96:b0:e6:0b:86:ec:f5:ae:ea
           requires: *prod-deploy_requires
           filters:
             branches:
