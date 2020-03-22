@@ -26,7 +26,7 @@ integration-master_filters: &integration-master_filters
 
 prod-deploy_requires: &prod-deploy_requires
   [
-    statustest-master,
+    statustest-master
   ]
 
 workflows:
@@ -81,7 +81,7 @@ workflows:
       - orb-tools/dev-promote-prod:
           name: dev-promote-patch
           context: orb-publishing
-          orb-name: circleci/slack
+          orb-name: uniqueck/telegram-orb
           cleanup-tags: true
           ssh-fingerprints: 79:ae:f5:10:17:8a:d2:9a:ed:63:5c:b0:92:66:23:49
           requires: *prod-deploy_requires
@@ -95,7 +95,7 @@ workflows:
           name: dev-promote-minor
           release: minor
           context: orb-publishing
-          orb-name: circleci/slack
+          orb-name: uniqueck/telegram-orb
           cleanup-tags: true
           ssh-fingerprints: 79:ae:f5:10:17:8a:d2:9a:ed:63:5c:b0:92:66:23:49
           requires: *prod-deploy_requires
@@ -109,7 +109,7 @@ workflows:
           name: dev-promote-major
           release: major
           context: orb-publishing
-          orb-name: circleci/slack
+          orb-name: uniqueck/telegram-orb
           cleanup-tags: true
           ssh-fingerprints: 79:ae:f5:10:17:8a:d2:9a:ed:63:5c:b0:92:66:23:49
           requires: *prod-deploy_requires

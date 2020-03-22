@@ -3,7 +3,6 @@ description: >
   Must be the last step in a job.
 
 parameters:
-
   token:
     type: string
     default: ${TELEGRAM_TOKEN}
